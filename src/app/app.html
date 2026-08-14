@@ -1,0 +1,746 @@
+@if (view() === 'landing') {
+  <app-landing (exitLanding)="setView('dashboard')"></app-landing>
+} @else {
+<div class="min-h-screen bg-[#f7f7fb] text-slate-900">
+  @if (sidebarOpen()) {
+    <button
+      class="fixed inset-0 z-30 bg-slate-950/30 backdrop-blur-sm lg:hidden"
+      aria-label="Fechar menu"
+      (click)="sidebarOpen.set(false)"
+    ></button>
+  }
+
+  <aside
+    class="fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-[#17142d] text-white transition-transform duration-300 lg:translate-x-0"
+    [class.-translate-x-full]="!sidebarOpen()"
+  >
+    <div class="flex h-24 items-center gap-3 px-7">
+      <div
+        class="grid size-11 place-items-center rounded-2xl bg-violet-500 shadow-lg shadow-violet-950/40"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          class="size-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+        >
+          <path d="m7 12 3 3 7-7" />
+          <path d="M20.5 13.5A8.5 8.5 0 1 1 17 5.4" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xl font-bold tracking-tight">Qualy<span class="text-violet-400">fy</span></p>
+        <p class="text-xs text-slate-400">Quality as a service</p>
+      </div>
+    </div>
+
+    <div class="px-5 pt-6">
+      <p class="mb-3 px-3 text-[10px] font-bold uppercase tracking-[.2em] text-slate-500">
+        Workspace
+      </p>
+      <nav class="space-y-1.5">
+        <button
+          class="nav-item"
+          [class.active]="view() === 'dashboard'"
+          (click)="setView('dashboard')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="3" width="7" height="7" rx="2" />
+            <rect x="14" y="3" width="7" height="7" rx="2" />
+            <rect x="3" y="14" width="7" height="7" rx="2" />
+            <rect x="14" y="14" width="7" height="7" rx="2" />
+          </svg>
+          Dashboard
+        </button>
+        <button
+          class="nav-item"
+          [class.active]="view() !== 'dashboard'"
+          (click)="setView('projetos')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path
+              d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4l2 2h7A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2h-13A2.5 2.5 0 0 1 3 17Z"
+            />
+          </svg>
+          Projetos
+          <span class="ml-auto rounded-full bg-white/10 px-2 py-0.5 text-xs">{{
+            selectedCompany().projects.length
+          }}</span>
+        </button>
+        <button class="nav-item demo-nav" (click)="openLanding()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m8 5 11 7-11 7V5Z" /></svg>
+          Exemplo teste
+          <span class="ml-auto rounded-full bg-fuchsia-500/20 px-2 py-0.5 text-[9px] font-bold text-fuchsia-300">DEMO</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mt-auto p-5">
+      <div class="rounded-2xl border border-white/10 bg-white/[.06] p-4">
+        <div class="mb-3 flex items-center gap-3">
+          <div
+            class="grid size-9 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 text-xs font-bold"
+          >
+            LM
+          </div>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold">Lucas Martins</p>
+            <p class="text-xs text-violet-300">Fundador · Administrador</p>
+          </div>
+          <button class="ml-auto text-slate-400">•••</button>
+        </div>
+        <div class="h-1.5 rounded-full bg-white/10">
+          <div class="h-full w-2/3 rounded-full bg-violet-400"></div>
+        </div>
+        <p class="mt-2 text-[10px] text-slate-500">Capacidade da operação · 68% alocada</p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="min-h-screen lg:pl-72">
+    <header
+      class="sticky top-0 z-20 flex h-20 items-center border-b border-slate-200/80 bg-white/85 px-5 backdrop-blur-xl sm:px-8 lg:px-10"
+    >
+      <button
+        class="mr-4 grid size-10 place-items-center rounded-xl border border-slate-200 lg:hidden"
+        (click)="sidebarOpen.set(true)"
+      >
+        <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+      <div>
+        <p class="text-[11px] font-bold uppercase tracking-[.16em] text-slate-400">Visão geral</p>
+        <h1 class="text-lg font-bold">
+          {{
+            view() === 'dashboard'
+              ? 'Dashboard'
+              : view() === 'projetos'
+                ? 'Projetos'
+                : view() === 'projeto'
+                  ? selectedProject()?.name
+                  : selectedFlow()?.name
+          }}
+        </h1>
+      </div>
+      <div class="relative ml-auto">
+        <button
+          class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left shadow-sm transition hover:border-violet-300"
+          (click)="companyMenuOpen.set(!companyMenuOpen())"
+        >
+          <span
+            class="grid size-8 place-items-center rounded-lg bg-violet-100 text-xs font-bold text-violet-700"
+            >{{ selectedCompany().initials }}</span
+          >
+          <span class="hidden sm:block"
+            ><span class="block text-[10px] font-medium text-slate-400">Cliente em foco</span
+            ><span class="block text-sm font-semibold leading-tight">{{
+              selectedCompany().name
+            }}</span></span
+          >
+          <svg
+            viewBox="0 0 24 24"
+            class="size-4 text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="m7 10 5 5 5-5" />
+          </svg>
+        </button>
+        @if (companyMenuOpen()) {
+          <div
+            class="absolute right-0 top-[calc(100%+8px)] w-72 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-300/40"
+          >
+            <p
+              class="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400"
+            >
+              Trocar cliente atendido
+            </p>
+            @for (company of companies; track company.id) {
+              <button
+                class="flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-slate-50"
+                [class.bg-violet-50]="company.id === selectedCompanyId()"
+                (click)="selectCompany(company.id)"
+              >
+                <span
+                  class="grid size-9 place-items-center rounded-xl bg-slate-100 text-xs font-bold text-slate-600"
+                  >{{ company.initials }}</span
+                >
+                <span
+                  ><span class="block text-sm font-semibold">{{ company.name }}</span
+                  ><span class="block text-xs text-slate-400"
+                    >{{ company.projects.length }} projetos · {{ company.segment }}</span
+                  ></span
+                >
+                @if (company.id === selectedCompanyId()) {
+                  <svg
+                    class="ml-auto size-4 text-violet-600"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="m5 12 4 4L19 6" />
+                  </svg>
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+      <button
+        class="ml-3 grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm"
+      >
+        <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="mx-auto max-w-[1500px] p-5 sm:p-8 lg:p-10">
+      @if (view() === 'dashboard') {
+        <section class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p class="mb-2 text-sm font-medium text-violet-600">
+              Painel administrativo · Sexta-feira, 14 de agosto
+            </p>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
+              Sua operação, Lucas <span class="text-violet-500">.</span>
+            </h2>
+            <p class="mt-2 text-sm text-slate-500">
+              Gerencie clientes, projetos e a capacidade da sua empresa de QA.
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn-primary" (click)="setView('projetos')">
+              Administrar projetos <span>→</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <article class="metric-card">
+            <div class="icon-box bg-violet-50 text-violet-600">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8M22 21v-2a4 4 0 0 0-3-3.87"
+                />
+              </svg>
+            </div>
+            <span class="trend good">↗ 1 novo</span>
+            <p>Clientes ativos</p>
+            <strong>{{ companies.length }}</strong
+            ><small>na carteira</small>
+          </article>
+          <article class="metric-card">
+            <div class="icon-box bg-cyan-50 text-cyan-600">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 7h6l2 2h10v10H3z" />
+              </svg>
+            </div>
+            <span class="trend good">↗ 2</span>
+            <p>Projetos em QA</p>
+            <strong>7</strong><small>em 3 clientes</small>
+          </article>
+          <article class="metric-card">
+            <div class="icon-box bg-rose-50 text-rose-500">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M8 2h8l1 4H7l1-4Z" />
+                <path d="M5 13h14M12 6v15M8 21a7 7 0 0 1-3-6V9h14v6a7 7 0 0 1-3 6" />
+              </svg>
+            </div>
+            <span class="trend neutral">3 críticos</span>
+            <p>Pendências críticas</p>
+            <strong>8</strong><small>exigem gestão</small>
+          </article>
+          <article class="metric-card">
+            <div class="icon-box bg-amber-50 text-amber-600">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+            </div>
+            <span class="trend good">↗ 18%</span>
+            <p>Capacidade alocada</p>
+            <strong>68%</strong><small>312h contratadas</small>
+          </article>
+        </section>
+
+        <section class="mt-6 grid gap-6 xl:grid-cols-[1.55fr_1fr]">
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>Carteira em foco · {{ selectedCompany().name }}</h3>
+                <p>Saúde dos projetos deste cliente</p>
+              </div>
+              <button class="text-sm font-semibold text-violet-600" (click)="setView('projetos')">
+                Gerenciar
+              </button>
+            </div>
+            <div class="divide-y divide-slate-100">
+              @for (project of selectedCompany().projects; track project.id) {
+                <button
+                  class="group flex w-full items-center gap-4 py-5 text-left"
+                  (click)="setView('projetos'); openProject(project.id)"
+                >
+                  <div class="project-icon" [attr.data-color]="project.color">
+                    {{ project.initials }}
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="mb-2 flex items-center justify-between">
+                      <p class="truncate text-sm font-bold">{{ project.name }}</p>
+                      <span class="ml-3 text-sm font-bold">{{ project.progress }}%</span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        class="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-400"
+                        [style.width.%]="project.progress"
+                      ></div>
+                    </div>
+                    <p class="mt-2 text-xs text-slate-400">
+                      {{ project.tests }} testes · {{ project.bugs }} bugs abertos
+                    </p>
+                  </div>
+                  <span
+                    class="text-slate-300 transition group-hover:translate-x-1 group-hover:text-violet-500"
+                    >→</span
+                  >
+                </button>
+              }
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>Atividade recente</h3>
+                <p>Últimas atualizações da equipe</p>
+              </div>
+              <button class="text-slate-400">•••</button>
+            </div>
+            <div class="space-y-6 pt-2">
+              <div class="activity">
+                <span class="activity-dot bg-emerald-500"></span>
+                <div>
+                  <p><b>Marina Costa</b> finalizou o ciclo de regressão</p>
+                  <small>Nexus Pay · há 12 min</small>
+                </div>
+              </div>
+              <div class="activity">
+                <span class="activity-dot bg-rose-500"></span>
+                <div>
+                  <p><b>Rafael Lima</b> reportou 3 novos bugs</p>
+                  <small>API Open Finance · há 48 min</small>
+                </div>
+              </div>
+              <div class="activity">
+                <span class="activity-dot bg-violet-500"></span>
+                <div>
+                  <p><b>Ana Ribeiro</b> adicionou 18 casos de teste</p>
+                  <small>Portal do Cliente · há 2h</small>
+                </div>
+              </div>
+              <div class="activity">
+                <span class="activity-dot bg-amber-400"></span>
+                <div>
+                  <p><b>Você</b> aprovou a release v2.4.0</p>
+                  <small>Nexus Pay · ontem, 18:40</small>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+      } @else if (view() === 'projetos') {
+        <section class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p class="mb-2 text-sm font-semibold text-violet-600">Gestão da carteira</p>
+            <h2 class="text-3xl font-bold tracking-tight">Clientes e projetos</h2>
+            <p class="mt-2 text-sm text-slate-500">
+              Administre as empresas atendidas e os projetos sob responsabilidade da sua equipe.
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn-primary" (click)="adminAction('Criar projeto')">
+              + Novo projeto
+            </button>
+          </div>
+        </section>
+
+        <section class="panel mb-6 !p-5 sm:!p-6">
+          <div class="mb-4 flex items-center justify-between">
+            <p class="text-xs font-bold uppercase tracking-[.15em] text-slate-400">
+              1. Selecione o cliente atendido
+            </p>
+            <span class="text-xs text-slate-400">{{ companies.length }} clientes ativos</span>
+          </div>
+          <div class="grid gap-3 md:grid-cols-3">
+            @for (company of companies; track company.id) {
+              <button
+                class="company-card"
+                [class.selected]="company.id === selectedCompanyId()"
+                (click)="selectCompany(company.id)"
+              >
+                <span class="company-logo">{{ company.initials }}</span
+                ><span class="min-w-0"
+                  ><b class="block truncate text-sm">{{ company.name }}</b
+                  ><small
+                    >{{ company.segment }} · {{ company.projects.length }} projetos</small
+                  ></span
+                >
+                @if (company.id === selectedCompanyId()) {
+                  <span class="check">✓</span>
+                }
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="panel !p-5 sm:!p-6">
+          <div class="mb-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[.15em] text-slate-400">
+                2. Selecione o projeto administrado
+              </p>
+              <h3 class="mt-1 text-lg font-bold">Projetos de {{ selectedCompany().name }}</h3>
+            </div>
+            <div class="hidden text-right sm:block">
+              <small class="text-slate-400">Cliente selecionado</small>
+              <p class="text-sm font-semibold text-violet-600">{{ selectedCompany().name }}</p>
+            </div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            @for (project of selectedCompany().projects; track project.id) {
+              <button
+                class="project-card"
+                [class.selected]="project.id === selectedProjectId()"
+                (click)="openProject(project.id)"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="project-icon !size-12" [attr.data-color]="project.color">
+                    {{ project.initials }}
+                  </div>
+                  <span class="status" [attr.data-status]="project.status">{{
+                    project.status
+                  }}</span>
+                </div>
+                <h4>{{ project.name }}</h4>
+                <p>{{ project.description }}</p>
+                <div class="mt-5 flex items-center justify-between text-xs">
+                  <span class="text-slate-400">Cobertura de testes</span
+                  ><b>{{ project.progress }}%</b>
+                </div>
+                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    class="h-full rounded-full bg-violet-500"
+                    [style.width.%]="project.progress"
+                  ></div>
+                </div>
+                <div
+                  class="mt-5 flex items-center border-t border-slate-100 pt-4 text-xs text-slate-500"
+                >
+                  <span
+                    ><b class="text-slate-800">{{ project.tests }}</b> testes</span
+                  ><span class="mx-3 text-slate-200">•</span
+                  ><span
+                    ><b class="text-slate-800">{{ project.bugs }}</b> bugs</span
+                  ><span class="ml-auto text-lg text-violet-500">→</span>
+                </div>
+              </button>
+            }
+          </div>
+        </section>
+
+        @if (selectedProject(); as project) {
+          <div
+            class="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl bg-[#17142d] p-6 text-white shadow-xl shadow-violet-950/10 sm:flex-row sm:items-center"
+          >
+            <div class="flex items-center gap-4">
+              <div class="grid size-12 place-items-center rounded-xl bg-violet-500 font-bold">
+                {{ project.initials }}
+              </div>
+              <div>
+                <p class="text-xs text-violet-300">Projeto selecionado</p>
+                <h3 class="text-lg font-bold">{{ project.name }}</h3>
+              </div>
+            </div>
+            <button
+              class="rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 transition hover:bg-violet-50"
+              (click)="accessProject()"
+            >
+              Acessar projeto <span class="ml-2">→</span>
+            </button>
+          </div>
+        }
+      } @else if (view() === 'projeto') {
+        @if (selectedProject(); as project) {
+          <button class="back-button" (click)="back()">← Voltar para projetos</button>
+          <section class="project-hero">
+            <div class="relative z-10">
+              <div class="mb-5 flex items-center gap-3">
+                <span
+                  class="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-violet-200"
+                  >Cliente · {{ selectedCompany().name }}</span
+                ><span class="text-xs text-slate-400">{{ selectedCompany().segment }}</span>
+              </div>
+              <h2 class="text-3xl font-bold sm:text-4xl">{{ project.name }}</h2>
+              <p class="mt-2 max-w-xl text-sm text-slate-300">
+                {{ project.description }}. Centralize a documentação, acompanhe cada fluxo e
+                mantenha a qualidade da entrega.
+              </p>
+              <div class="mt-7 flex flex-wrap gap-6">
+                <div>
+                  <strong>{{ flows().length }}</strong
+                  ><span>Fluxos mapeados</span>
+                </div>
+                <div>
+                  <strong>{{ project.tests }}</strong
+                  ><span>Testes executados</span>
+                </div>
+                <div>
+                  <strong>{{ project.bugs }}</strong
+                  ><span>Bugs em aberto</span>
+                </div>
+                <div>
+                  <strong>{{ project.progress }}%</strong><span>Cobertura</span>
+                </div>
+              </div>
+            </div>
+            <div class="hero-orb"></div>
+          </section>
+
+          <section class="mt-7">
+            <div class="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-[.16em] text-violet-600">
+                  Jornadas do produto
+                </p>
+                <h3 class="mt-1 text-2xl font-bold">Fluxos do projeto</h3>
+                <p class="mt-1 text-sm text-slate-500">
+                  Abra um fluxo para gerenciar requisitos, materiais e testes.
+                </p>
+              </div>
+              <button class="btn-primary" (click)="adminAction('Criar fluxo')">+ Novo fluxo</button>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+              @for (flow of flows(); track flow.id; let index = $index) {
+                <article class="flow-card">
+                  <div class="flex items-start justify-between">
+                    <span class="flow-number">0{{ index + 1 }}</span
+                    ><span class="flow-status" [attr.data-status]="flow.status">{{
+                      flow.status
+                    }}</span>
+                  </div>
+                  <h4>{{ flow.name }}</h4>
+                  <p>{{ flow.description }}</p>
+                  <div class="mt-6 flex items-center gap-3 border-t border-slate-100 pt-4">
+                    <div
+                      class="grid size-8 place-items-center rounded-full bg-slate-100 text-[10px] font-bold text-slate-600"
+                    >
+                      {{ flow.owner.slice(0, 2).toUpperCase() }}
+                    </div>
+                    <div>
+                      <span class="block text-xs font-semibold">{{ flow.owner }}</span
+                      ><small class="text-[10px] text-slate-400"
+                        >Atualizado {{ flow.updatedAt }}</small
+                      >
+                    </div>
+                    <button
+                      class="ml-auto rounded-xl bg-violet-50 px-4 py-2 text-xs font-bold text-violet-700 transition hover:bg-violet-600 hover:text-white"
+                      (click)="openFlow(flow.id)"
+                    >
+                      Ver fluxo →
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+        }
+      } @else {
+        @if (selectedFlow(); as flow) {
+          <button class="back-button" (click)="back()">
+            ← Voltar para {{ selectedProject()?.name }}
+          </button>
+          <section class="mb-7 flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
+            <div>
+              <div class="mb-3 flex flex-wrap items-center gap-2">
+                <span class="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-700"
+                  >Fluxo {{ flow.id }}</span
+                >
+                @if (markedModified()) {
+                  <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700"
+                    >Reteste necessário</span
+                  >
+                }
+              </div>
+              <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">{{ flow.name }}</h2>
+              <p class="mt-2 max-w-2xl text-sm text-slate-500">{{ flow.description }}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button class="action-button" (click)="scheduleConsultation()">
+                <span>◷</span> Agendar alinhamento com cliente</button
+              ><button class="action-button" (click)="generateReport()">
+                <span>⇩</span> Emitir relatório ao cliente</button
+              ><button
+                class="action-button warning"
+                [class.active]="markedModified()"
+                (click)="toggleModified()"
+              >
+                <span>↻</span>
+                {{ markedModified() ? 'Reteste solicitado' : 'Solicitar novo teste' }}
+              </button>
+            </div>
+          </section>
+
+          <section class="panel mb-6 !p-5 sm:!p-7">
+            <div class="mb-7 flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-[.15em] text-slate-400">
+                  Progresso da validação
+                </p>
+                <h3 class="mt-1 text-lg font-bold">Etapas do fluxo</h3>
+              </div>
+              <div class="text-right">
+                <strong class="text-2xl text-violet-600">{{ completedSteps() }}/4</strong>
+                <p class="text-[10px] text-slate-400">etapas concluídas</p>
+              </div>
+            </div>
+            <div class="stepper">
+              <div class="step" [class.done]="processFile()">
+                <span>1</span>
+                <div>
+                  <b>Mapeamento</b><small>{{ processFile() || 'Aguardando arquivo' }}</small>
+                </div>
+              </div>
+              <div class="step" [class.done]="figmaFile()">
+                <span>2</span>
+                <div>
+                  <b>Design Figma</b><small>{{ figmaFile() || 'Aguardando arquivo' }}</small>
+                </div>
+              </div>
+              <button
+                class="step text-left"
+                [class.done]="developmentTested()"
+                [disabled]="!processFile() || !figmaFile()"
+                (click)="developmentTested.set(!developmentTested())"
+              >
+                <span>3</span>
+                <div>
+                  <b>Teste desenvolvimento</b
+                  ><small>{{ developmentTested() ? 'Concluído' : 'Marcar como concluído' }}</small>
+                </div>
+              </button>
+              <button
+                class="step text-left"
+                [class.done]="finalTested()"
+                [disabled]="!developmentTested()"
+                (click)="finalTested.set(!finalTested())"
+              >
+                <span>4</span>
+                <div>
+                  <b>Teste final do Figma</b
+                  ><small>{{ finalTested() ? 'Concluído' : 'Aguardando etapa anterior' }}</small>
+                </div>
+              </button>
+            </div>
+          </section>
+
+          <div class="space-y-6">
+            <section class="panel !p-5 sm:!p-7">
+              <div class="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-[.15em] text-violet-600">
+                    CRUD do fluxo
+                  </p>
+                  <h3 class="mt-1 text-xl font-bold">Requisitos funcionais</h3>
+                  <p class="mt-1 text-xs text-slate-400">
+                    Crie, edite e remova os critérios deste fluxo.
+                  </p>
+                </div>
+                <div class="flex items-center gap-2"><span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold">{{ flow.requirements.length }} itens</span><button class="rounded-xl bg-violet-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-violet-700" (click)="openRequirementForm()">+ Novo requisito</button></div>
+              </div>
+              @if (showRequirementForm()) {
+              <div class="requirement-form mb-5">
+                <div class="flex items-center justify-between border-b border-violet-100 pb-3"><div><b class="text-sm">{{ editingRequirement() === null ? 'Cadastrar requisito' : 'Editar requisito' }}</b><p class="mt-0.5 text-[11px] text-slate-400">Preencha apenas os dados necessários para a validação.</p></div><button class="grid size-8 place-items-center rounded-lg text-lg text-slate-400 hover:bg-white" (click)="cancelRequirementForm()">×</button></div>
+                <div class="grid gap-3 sm:grid-cols-[1fr_180px]">
+                  <label><span>Título do requisito *</span><input class="requirement-input" type="text" [value]="requirementDraft()" (input)="requirementDraft.set($any($event.target).value)" placeholder="Ex.: Validar e-mail do usuário" /></label>
+                  <label><span>Status da validação</span><select class="requirement-input" [value]="requirementStatusDraft()" (change)="requirementStatusDraft.set($any($event.target).value)"><option>Não testado</option><option>Atendido</option><option>Não atendido</option><option>Parcialmente atendido</option></select></label>
+                </div>
+                  <label><span>Descrição / critério de aceite</span><textarea class="requirement-input resize-y" rows="3" [value]="requirementDescriptionDraft()" (input)="requirementDescriptionDraft.set($any($event.target).value)" placeholder="Descreva o comportamento esperado e os critérios de aceite..."></textarea></label>
+                <label><span>Observação ou evidência do teste</span><textarea class="requirement-input resize-y" rows="3" [value]="requirementEvidenceDraft()" (input)="requirementEvidenceDraft.set($any($event.target).value)" placeholder="Informe o resultado encontrado, evidências ou motivo da reprovação..."></textarea></label>
+                <div class="flex items-center justify-end gap-2 border-t border-violet-100 pt-4"><button class="rounded-xl px-4 py-2.5 text-xs font-bold text-slate-500 hover:bg-white" (click)="cancelRequirementForm()">Cancelar</button><button class="rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-violet-700" (click)="saveRequirement()">{{ editingRequirement() === null ? 'Adicionar requisito' : 'Salvar alterações' }}</button></div>
+              </div>
+              }
+              <div class="mt-5 space-y-3">
+                @for (requirement of flow.requirements; track requirement.title; let index = $index) {
+                  <article class="requirement-detail" [attr.data-status]="requirement.status">
+                    <div class="flex items-start gap-3"><span class="requirement-state">{{ requirement.status === 'Atendido' ? '✓' : requirement.status === 'Não atendido' ? '!' : requirement.status === 'Parcialmente atendido' ? '◐' : '○' }}</span><div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><h4>{{ requirement.title }}</h4><span class="requirement-badge" [attr.data-status]="requirement.status">{{ requirement.status }}</span></div><p class="mt-2">{{ requirement.description || 'Nenhuma descrição informada.' }}</p>@if (requirement.evidence) { <div class="evidence"><b>Observação / evidência</b><span>{{ requirement.evidence }}</span></div> }</div><div class="flex"><button title="Editar" (click)="editRequirement(index)">✎</button><button class="delete" title="Excluir" (click)="deleteRequirement(index)">×</button></div></div>
+                    <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3"><span class="mr-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Resultado rápido:</span><button class="status-choice success" [class.active]="requirement.status === 'Atendido'" (click)="setRequirementStatus(index, 'Atendido')">✓ Atendido</button><button class="status-choice danger" [class.active]="requirement.status === 'Não atendido'" (click)="setRequirementStatus(index, 'Não atendido')">× Não atendido</button><button class="status-choice partial" [class.active]="requirement.status === 'Parcialmente atendido'" (click)="setRequirementStatus(index, 'Parcialmente atendido')">◐ Parcial</button><button class="status-choice" [class.active]="requirement.status === 'Não testado'" (click)="setRequirementStatus(index, 'Não testado')">○ Não testado</button></div>
+                  </article>
+                } @empty {
+                  <div
+                    class="rounded-xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-400"
+                  >
+                    Nenhum requisito cadastrado.
+                  </div>
+                }
+              </div>
+            </section>
+
+            <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <article class="upload-card" [class.complete]="processFile()">
+                <div class="upload-icon">⌘</div>
+                <div class="min-w-0 flex-1">
+                  <h4>Mapeamento de processo</h4>
+                  <p>{{ processFile() || 'BPMN, PDF ou documento do fluxo' }}</p>
+                </div>
+                <label
+                  ><input
+                    class="hidden"
+                    type="file"
+                    accept=".pdf,.bpmn,.doc,.docx,image/*"
+                    (change)="attachFile($event, 'process')"
+                  /><span>{{ processFile() ? 'Trocar' : 'Anexar' }}</span></label
+                >
+              </article>
+              <article class="upload-card" [class.complete]="figmaFile()">
+                <div class="upload-icon figma">F</div>
+                <div class="min-w-0 flex-1">
+                  <h4>Design do Figma</h4>
+                  <p>{{ figmaFile() || 'Link exportado, PDF ou imagens' }}</p>
+                </div>
+                <label
+                  ><input
+                    class="hidden"
+                    type="file"
+                    accept=".pdf,image/*,.fig"
+                    (change)="attachFile($event, 'figma')"
+                  /><span>{{ figmaFile() ? 'Trocar' : 'Anexar' }}</span></label
+                >
+              </article>
+              <article class="rounded-2xl bg-[#17142d] p-6 text-white">
+                <p class="text-xs font-semibold text-violet-300">Gestão do relacionamento</p>
+                <h4 class="mt-2 text-lg font-bold">Alinhamento com o cliente</h4>
+                <p class="mt-2 text-xs leading-5 text-slate-400">
+                  Registre uma reunião para apresentar resultados, esclarecer requisitos ou planejar
+                  o próximo ciclo.
+                </p>
+                <button
+                  class="mt-5 w-full rounded-xl bg-white py-3 text-xs font-bold text-slate-900"
+                  (click)="scheduleConsultation()"
+                >
+                  Agendar alinhamento
+                </button>
+              </article>
+            </section>
+          </div>
+        }
+      }
+    </div>
+  </main>
+  @if (toast()) {
+    <div class="toast"><span>✓</span>{{ toast() }}</div>
+  }
+</div>
+}
