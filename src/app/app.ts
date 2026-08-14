@@ -71,7 +71,7 @@ export class App {
   protected readonly demoRunning = signal(false);
   protected readonly demoProgress = signal(0);
   protected readonly demoStep = signal(0);
-  protected readonly demoLogs = signal<string[]>(['Plugin Qualyfy pronto para iniciar.']);
+  protected readonly demoLogs = signal<string[]>(['Plugin nexTest pronto para iniciar.']);
   protected readonly demoPassed = signal<number | null>(null);
 
   protected readonly demoScenarios = [
@@ -289,7 +289,7 @@ export class App {
     this.demoProgress.set(0);
     this.demoStep.set(0);
     this.demoPassed.set(null);
-    this.demoLogs.set(['Conectando ao ambiente de homologação...', 'Plugin Qualyfy v2.4.1 inicializado.']);
+    this.demoLogs.set(['Conectando ao ambiente de homologação...', 'Plugin nexTest v2.4.1 inicializado.']);
     let tick = 0;
     const timer = window.setInterval(() => {
       tick += 1;

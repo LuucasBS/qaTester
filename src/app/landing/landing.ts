@@ -11,7 +11,7 @@ export class LandingPage {
   readonly progress = signal(0);
   readonly currentStep = signal(0);
   readonly completed = signal(false);
-  readonly logs = signal<string[]>(['Plugin Qualyfy pronto para iniciar.']);
+  readonly logs = signal<string[]>(['Plugin nexTest pronto para iniciar.']);
   readonly demoTab = signal<'plugin' | 'success' | 'failure'>('plugin');
 
   readonly scenarios = [
@@ -29,7 +29,7 @@ export class LandingPage {
     this.completed.set(false);
     this.progress.set(0);
     this.currentStep.set(0);
-    this.logs.set(['Conectando ao ambiente de homologação...', 'Plugin Qualyfy v2.4.1 inicializado.']);
+    this.logs.set(['Conectando ao ambiente de homologação...', 'Plugin nexTest v2.4.1 inicializado.']);
     let tick = 0;
     const timer = window.setInterval(() => {
       tick += 1;
